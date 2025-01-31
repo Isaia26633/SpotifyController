@@ -65,31 +65,32 @@ app.get('/callback', (req, res) => {
 app.get('/search', (req, res) => {
     const { q } = req.query;
 
-    // Check if query parameter is missing
-    if (!q) {
-        return res.status(400).json({ error: "Missing query parameter" });
+    // Check if the access token is set before making the search request
+    if (!spotifyApi.getAccessToken()) {
+        return res.status(401).send('Unauthorized: Access token missing or invalid');
     }
 
     spotifyApi.searchTracks(q)
-        .then((data) => {
-            const track = data.body.tracks.items[0];
-            res.json({
-                name: track.name,
-                artist: track.artists[0].name,
-                cover: track.album.images[0].url,
-                uri: track.uri
-            });
+        .then(searchData => {
+            if (searchData.body.tracks.items.length > 0) {
+                const track = searchData.body.tracks.items[0]; // Grab the first track from the search results
+                const trackInfo = {
+                    name: track.name,
+                    artist: track.artists[0].name,
+                    uri: track.uri,
+                    cover: track.album.images[0].url, // Get the album cover URL
+                };
+                res.json(trackInfo);
+            } else {
+                res.status(404).send('No tracks found');
+            }
         })
-        .catch((err) => {
-            console.error('Error searching Spotify:', err.message);
-            console.error('Error details:', JSON.stringify(err, null, 2)); // Log full error
-
-            res.status(500).json({
-                error: 'Error searching tracks',
-                details: err.message || 'Unknown error'
-            });
+        .catch(err => {
+            console.error('Error searching tracks:', err); // Log the full error
+            res.status(500).send(`Error: ${err.message}`); // Return detailed error message
         });
 });
+
 
 
 app.get('/play', (req, res) => {
