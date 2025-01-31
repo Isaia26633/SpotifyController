@@ -11,6 +11,7 @@ A simple Node.js application that allows users to search for Spotify tracks and 
 
 **Note**: To play tracks, you must have a Spotify client (e.g., the desktop or mobile app) running and logged in on the same account, as the app uses **Spotify Connect** to control playback.
 
+**⚠ Important**: You must have **Spotify Premium** for playback to work, as free accounts do not support Spotify Connect control via third-party applications. 
 ---
 
 ## Prerequisites
