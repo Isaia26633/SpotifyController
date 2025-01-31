@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify search</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    Search for a song to find its Uri <br>
+
+    <form onsubmit="search(event); return false;">
+        <div class="searchbar">
+            <input type="text" id="searchBar" placeholder="Search for a song">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+
+    <div id="searchResults"></div>
+</body>
+<script>
+    function search(event) {
+        event.preventDefault();
+
+        const query = document.getElementById('searchBar').value;
+        if (!query) return alert("Please enter a song name.");
+
+        fetch(`/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('searchResults');
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <h3>${data.name}</h3>
+                        <p>Artist: ${data.artist}</p>
+                        <img src="${data.cover}" alt="Album Cover" width="200"><br>
+                        <button onclick="playSong('${data.uri}')">▶ Play</button>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('searchResults').innerHTML = "An error occurred.";
+            });
+    }
+    function playSong(uri) {
+        fetch(`/play`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uri })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Now playing song.");
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Failed to play song.");
+            });
+    }
+</script>
+
+</html>

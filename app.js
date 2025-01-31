@@ -39,10 +39,8 @@ app.get('/callback', (req, res) => {
         spotifyApi.setRefreshToken(refreshToken);
 
         console.log('Access Token:', accessToken, refreshToken);
-        res.send('success! Please wait while we redirect you to the search page...');
-        setTimeout(() => {
-            res.redirect('/search');
-        }, 3000);
+        res.redirect('/searchPage');
+
 
         setInterval(async () => {
             const data = await spotifyApi.refreshAccessToken();
@@ -58,13 +56,25 @@ app.get('/callback', (req, res) => {
 
 app.get('/search', (req, res) => {
     const { q } = req.query;
-    spotifyApi.searchTracks(q).then(searchData => {
-        const trackUri = searchData.body.tracks.items[0].uri;
-        res.send({ uri: trackUri });
-    }).catch(err => {
-        console.error('Error:', err);
-        res.status(500).send(err); // Improved error handling
-    });
+
+    spotifyApi.searchTracks(q)
+        .then(searchData => {
+            if (searchData.body.tracks.items.length > 0) {
+                const track = searchData.body.tracks.items[0]; // First result
+                res.json({
+                    name: track.name,
+                    artist: track.artists[0].name,
+                    cover: track.album.images[0].url,
+                    uri: track.uri // Still sending URI for backend use
+                });
+            } else {
+                res.json({ error: "No results found" });
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: "Something went wrong" });
+        });
 });
 
 app.get('/play', (req, res) => {
@@ -79,6 +89,27 @@ app.get('/play', (req, res) => {
 
 app.get('/', (req, res) => {
     res.render('index');
+});
+
+app.get('/searchPage', (req, res) => {
+    res.render('searchPage');
+});
+
+app.post('/play', (req, res) => {
+    const { uri } = req.body;
+
+    if (!uri) {
+        return res.status(400).json({ error: "Missing track URI" });
+    }
+
+    spotifyApi.play({ uris: [uri] })
+        .then(() => {
+            res.json({ success: true, message: "Playing track!" });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: "Playback failed, make sure Spotify is open" });
+        });
 });
 
 
