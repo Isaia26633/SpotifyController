@@ -33,7 +33,7 @@ Additionally, make sure that you have **Spotify running** on your device and tha
 Clone the repository to your local machine using Git:
 
 ```bash
-git clone https://github.com/your-username/SpotifyController.git
+git clone https://github.com/isaia26633/SpotifyController.git
 cd SpotifyController
 ```
 
