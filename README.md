@@ -2,7 +2,7 @@
 
 # SpotifyController
 
-A simple Node.js application that allows users to search for Spotify tracks and play them directly from the app. The app integrates with the **Spotify Web API** to enable searching for tracks, fetching their information, and playing them.
+A simple Node.js application that allows users to search for Spotify tracks and play them directly from the node server. The app integrates with the **Spotify Web API** to enable searching for tracks, fetching their information, and playing them.
 
 ## Features
 - Search for Spotify tracks by name.
