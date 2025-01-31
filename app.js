@@ -35,22 +35,30 @@ app.get('/callback', (req, res) => {
         const refreshToken = data.body['refresh_token'];
         const expiresIn = data.body['expires_in'];
 
+        // Set the access token and refresh token for the API calls
         spotifyApi.setAccessToken(accessToken);
         spotifyApi.setRefreshToken(refreshToken);
 
         console.log('Access Token:', accessToken, refreshToken);
-        res.redirect('/searchPage');
 
+        // Send the user to the next page (adjust for your setup)
+        res.redirect('/searchPage'); // You can replace this with a more meaningful page like /dashboard or home
 
+        // Handle token refresh in the background
         setInterval(async () => {
-            const data = await spotifyApi.refreshAccessToken();
-            const accessToken = data.body['access_token'];
-            spotifyApi.setAccessToken(accessToken);
-        }, expiresIn / 2 * 1000);
+            try {
+                const data = await spotifyApi.refreshAccessToken();
+                const newAccessToken = data.body['access_token'];
+                spotifyApi.setAccessToken(newAccessToken);
+                console.log('Token refreshed:', newAccessToken); // Log the refreshed token if needed
+            } catch (err) {
+                console.error('Error refreshing access token:', err);
+            }
+        }, (expiresIn / 2) * 1000); // Refresh half the expiration time
 
     }).catch(error => {
-        console.error('Error:', error);
-        res.send(`Error: ${error}`);
+        console.error('Error during authorization:', error);
+        res.status(500).send(`Error during authorization: ${error.message}`);
     });
 });
 
@@ -63,27 +71,23 @@ app.get('/search', (req, res) => {
     }
 
     spotifyApi.searchTracks(q)
-        .then(searchData => {
-            if (searchData.body.tracks.items.length > 0) {
-                const track = searchData.body.tracks.items[0]; // First result
-                res.json({
-                    name: track.name,
-                    artist: track.artists[0].name,
-                    cover: track.album.images[0].url,
-                    uri: track.uri // Still sending URI for backend use
-                });
-            } else {
-                res.json({ error: "No results found" });
-            }
+        .then((data) => {
+            const track = data.body.tracks.items[0];
+            res.json({
+                name: track.name,
+                artist: track.artists[0].name,
+                cover: track.album.images[0].url,
+                uri: track.uri
+            });
         })
-        .catch(err => {
-            console.error('Error:', err); // Log the full error
-            if (err.body) {
-                console.error('Error Body:', err.body); // Log the error details from the Spotify API
-                res.status(500).json({ error: err.body }); // Send the full error message back to the client
-            } else {
-                res.status(500).json({ error: "An error occurred while searching for the track" });
-            }
+        .catch((err) => {
+            console.error('Error searching Spotify:', err.message);
+            console.error('Error details:', JSON.stringify(err, null, 2)); // Log full error
+
+            res.status(500).json({
+                error: 'Error searching tracks',
+                details: err.message || 'Unknown error'
+            });
         });
 });
 
