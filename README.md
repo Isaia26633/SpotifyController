@@ -82,7 +82,7 @@ Make sure to replace `your_spotify_client_id` and `your_spotify_client_secret` w
 After setting up the `.env` file with your credentials, run the server with the following command:
 
 ```bash
-npm start
+node app
 ```
 
 This will start the Node.js server on **http://localhost:3000**.
