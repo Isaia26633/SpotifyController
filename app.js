@@ -57,6 +57,11 @@ app.get('/callback', (req, res) => {
 app.get('/search', (req, res) => {
     const { q } = req.query;
 
+    // Check if query parameter is missing
+    if (!q) {
+        return res.status(400).json({ error: "Missing query parameter" });
+    }
+
     spotifyApi.searchTracks(q)
         .then(searchData => {
             if (searchData.body.tracks.items.length > 0) {
@@ -72,10 +77,16 @@ app.get('/search', (req, res) => {
             }
         })
         .catch(err => {
-            console.error('Error:', err);
-            res.status(500).json({ error: "Something went wrong" });
+            console.error('Error:', err); // Log the full error
+            if (err.body) {
+                console.error('Error Body:', err.body); // Log the error details from the Spotify API
+                res.status(500).json({ error: err.body }); // Send the full error message back to the client
+            } else {
+                res.status(500).json({ error: "An error occurred while searching for the track" });
+            }
         });
 });
+
 
 app.get('/play', (req, res) => {
     const { uri } = req.query;

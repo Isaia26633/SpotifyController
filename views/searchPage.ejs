@@ -22,7 +22,7 @@
 </body>
 <script>
     function search(event) {
-        event.preventDefault();
+        event.preventDefault(); // Stop page reload
 
         const query = document.getElementById('searchBar').value;
         if (!query) return alert("Please enter a song name.");
@@ -33,19 +33,19 @@
                 const resultsDiv = document.getElementById('searchResults');
 
                 if (data.error) {
-                    resultsDiv.innerHTML = `<p>${data.error}</p>`;
+                    resultsDiv.innerHTML = `<p>Error: ${data.error}</p>`;
                 } else {
                     resultsDiv.innerHTML = `
-                        <h3>${data.name}</h3>
-                        <p>Artist: ${data.artist}</p>
-                        <img src="${data.cover}" alt="Album Cover" width="200"><br>
-                        <button onclick="playSong('${data.uri}')">▶ Play</button>
-                    `;
+                    <h3>${data.name}</h3>
+                    <p>Artist: ${data.artist}</p>
+                    <img src="${data.cover}" alt="Album Cover" width="200"><br>
+                    <button onclick="playSong('${data.uri}')">▶ Play</button>
+                `;
                 }
             })
             .catch(err => {
-                console.error(err);
-                document.getElementById('searchResults').innerHTML = "An error occurred.";
+                console.error('Fetch Error:', err); // Log any fetch errors
+                document.getElementById('searchResults').innerHTML = "An error occurred while searching.";
             });
     }
     function playSong(uri) {
@@ -57,13 +57,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert("Now playing song.");
+                    alert("Now playing: " + uri);
                 } else {
-                    alert("Error: " + data.error);
+                    alert("Error: " + JSON.stringify(data.error)); // Display the full error details
                 }
             })
             .catch(err => {
-                console.error(err);
+                console.error('Fetch Error:', err); // Log any fetch errors
                 alert("Failed to play song.");
             });
     }
