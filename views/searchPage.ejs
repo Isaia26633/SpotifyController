@@ -15,7 +15,7 @@
     <form onsubmit="search(event); return false;">
         <div class="searchbar">
             <input type="text" id="searchBar" placeholder="Search for a song">
-            <button type="submit">Search</button>
+            <button type="submit" class="searchButton">Search</button>
         </div>
     </form>
 
@@ -40,7 +40,11 @@
                     <h3>${data.name}</h3>
                     <p>Artist: ${data.artist}</p>
                     <img src="${data.cover}" alt="Album Cover" width="200"><br>
-                    <button onclick="playSong('${data.uri}')">▶ Play</button>
+                    <button onclick="previousSong('${data.uri}')" class='playback'>⏮</button>
+                    <button onclick="playSong('${data.uri}')" class='playback'>▶</button>
+                    <button onclick="skipSong('${data.uri}')" class='playback'>⏭</button>
+                    <br>
+                    <button onclick="addToQueue('${data.uri}')" class='searchButton'>➕ Add to Queue</button>
                 `;
                 }
             })
@@ -67,6 +71,54 @@
                 console.error('Fetch Error:', err); // Log any fetch errors
                 alert("Failed to play song.");
             });
+    }
+    function addToQueue(uri) {
+        fetch(`/queue`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uri })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Added to queue: " + uri);
+                } else {
+                    alert("Error: " + JSON.stringify(data.error)); // Display the full error details
+                }
+            })
+            .catch(err => {
+                console.error('Fetch Error:', err); // Log any fetch errors
+                alert("Failed to add song to queue.");
+            });
+    }
+    function skipSong(uri) {
+        fetch('/next',{
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uri })
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Skipped to next song");
+            } else {
+                alert("Error: " + JSON.stringify(data.error)); // Display the full error details
+            }
+        })
+    }
+    function previousSong(uri) {
+        fetch('/previous',{
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ uri })
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Skipped to previous song");
+            } else {
+                alert("Error: " + JSON.stringify(data.error)); // Display the full error details
+            }
+        })
+        
     }
 </script>
 

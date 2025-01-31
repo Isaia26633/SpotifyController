@@ -59,7 +59,7 @@ body {
     display: block;
 }
 
-button {
+.searchButton {
     background-color: #1DB954;
     color: #fff;
     font-size: 16px;
@@ -70,6 +70,27 @@ button {
     transition: background-color 0.3s ease;
 }
 
-button:hover {
+.searchButton:hover {
+    background-color: #1ed760;
+}
+
+.playback {
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: #1DB954;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    transition: background-color 0.3s ease;
+}
+
+
+.playback:hover {
     background-color: #1ed760;
 }

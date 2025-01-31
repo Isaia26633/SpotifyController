@@ -91,18 +91,6 @@ app.get('/search', (req, res) => {
         });
 });
 
-
-
-app.get('/play', (req, res) => {
-    const { uri } = req.query;
-    spotifyApi.play({ uris: [uri] }).then(() => {
-        res.send('success');
-    }).catch(err => {
-        console.error('Error:', err);
-        res.status(500).send(err); // Improved error handling
-    });
-});
-
 app.get('/', (req, res) => {
     res.render('index');
 });
@@ -110,6 +98,8 @@ app.get('/', (req, res) => {
 app.get('/searchPage', (req, res) => {
     res.render('searchPage');
 });
+
+//plays the song when the play button is pressed
 
 app.post('/play', (req, res) => {
     const { uri } = req.body;
@@ -128,6 +118,47 @@ app.post('/play', (req, res) => {
         });
 });
 
+//adds song to queue
+app.post('/queue', (req, res) => {
+    const { uri } = req.body;
+
+    if (!uri) {
+        return res.status(400).json({ error: "Missing track URI" });
+    }
+
+    spotifyApi.addToQueue(uri)
+        .then(() => {
+            res.json({ success: true, message: "Added track to queue!" });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: "Failed to add track to queue" });
+        });
+})
+
+//skip track
+app.post('/next', (req, res) => {
+    spotifyApi.skipToNext()
+        .then(() => {
+            res.json({ success: true, message: "Skipped to next track" });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: "Failed to skip track" });
+        });
+});
+
+//previou tracks
+app.post('/previous', (req, res) => {
+    spotifyApi.skipToPrevious()
+        .then(() => {
+            res.json({ success: true, message: "Skipped to previous track" });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: "Failed to skip to previous track" });
+        });
+});
 
 app.listen(port, () => {
     console.log(`Listening on port http://localhost:${port}`);
