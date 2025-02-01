@@ -16,7 +16,14 @@ const spotifyApi = new SpotifyWebApi({
 });
 
 app.get('/login', (req, res) => {
-    const scopes = ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state'];
+    const scopes = [
+        'user-read-private',
+        'user-read-email',
+        'user-read-playback-state',
+        'user-modify-playback-state',
+        'user-library-modify',
+        'user-library-read'
+    ];
     res.redirect(spotifyApi.createAuthorizeURL(scopes));
 });
 
@@ -91,12 +98,36 @@ app.get('/search', (req, res) => {
         });
 });
 
+
+//gets the users currently playing song if theyre listening to anything on spotify
+app.get('/currentSong', (req, res) => {
+    spotifyApi.getMyCurrentPlayingTrack()
+        .then(data => {
+            if (data.body.item) {
+                const track = data.body.item;
+                const trackInfo = {
+                    name: track.name,
+                    artist: track.artists[0].name,
+                    uri: track.uri,
+                    cover: track.album.images[0].url,
+                };
+                res.json(trackInfo);
+            } else {
+                res.status(404).send('No tracks found');
+            }
+        })
+        .catch(err => {
+            console.error('Error getting current track:', err);
+            res.status(500).send(`Error: ${err.message}`);
+        });
+});
+
 app.get('/', (req, res) => {
     res.render('index');
 });
 
 app.get('/searchPage', (req, res) => {
-    res.render('searchPage');
+    res.render('homePage');
 });
 
 //plays the song when the play button is pressed
@@ -126,15 +157,40 @@ app.post('/queue', (req, res) => {
         return res.status(400).json({ error: "Missing track URI" });
     }
 
-    spotifyApi.addToQueue(uri)
-        .then(() => {
-            res.json({ success: true, message: "Added track to queue!" });
+    // Extract the track ID from the URI
+    const trackIdPattern = /^spotify:track:([a-zA-Z0-9]{22})$/;
+    const match = uri.match(trackIdPattern);
+    if (!match) {
+        return res.status(400).json({ error: 'Invalid track URI format' });
+    }
+    const trackId = match[1];
+
+    // Get track details to include the track name in the response
+    spotifyApi.getTrack(trackId)
+        .then(trackData => {
+            const track = trackData.body;
+            const trackInfo = {
+                name: track.name,
+                artist: track.artists[0].name,
+                uri: track.uri,
+                cover: track.album.images[0].url,
+            };
+
+            // Add the track to the queue
+            spotifyApi.addToQueue(uri)
+                .then(() => {
+                    res.status(200).json({ success: true, message: "Added track to queue!", trackInfo });
+                })
+                .catch(err => {
+                    console.error('Error adding track to queue:', err);
+                    res.status(500).json({ error: "Failed to add track to queue" });
+                });
         })
         .catch(err => {
-            console.error('Error:', err);
-            res.status(500).json({ error: "Failed to add track to queue" });
+            console.error('Error fetching track details:', err);
+            res.status(500).json({ error: `Error: ${err.message}` });
         });
-})
+});
 
 //skip track
 app.post('/next', (req, res) => {
@@ -148,16 +204,51 @@ app.post('/next', (req, res) => {
         });
 });
 
-//previou tracks
-app.post('/previous', (req, res) => {
-    spotifyApi.skipToPrevious()
-        .then(() => {
-            res.json({ success: true, message: "Skipped to previous track" });
+//add to liked
+app.post('/addToLiked', (req, res) => {
+    const trackUri = req.body.uri;
+
+    if (!trackUri) {
+        return res.status(400).json({ error: 'Track URI is required' });
+    }
+
+    // Log the track URI for debugging
+    console.log('Track URI:', trackUri);
+
+    // Extract the track ID from the URI
+    const trackIdPattern = /^spotify:track:([a-zA-Z0-9]{22})$/;
+    const match = trackUri.match(trackIdPattern);
+    if (!match) {
+        return res.status(400).json({ error: 'Invalid track URI format' });
+    }
+    const trackId = match[1];
+
+
+    spotifyApi.getTrack(trackId)
+        .then(trackData => {
+            const track = trackData.body;
+            const trackInfo = {
+                name: track.name,
+                artist: track.artists[0].name,
+                uri: track.uri,
+                cover: track.album.images[0].url,
+            };
+            spotifyApi.addToMySavedTracks([trackId])
+                .then(() => {
+                    res.status(200).json({ success: true, message: 'Track added to liked songs', trackInfo });
+                })
+                .catch(err => {
+                    console.error('Error adding track to liked songs:', err);
+                    res.status(500).json({ error: `Error: ${err.message}` });
+                });
         })
         .catch(err => {
-            console.error('Error:', err);
-            res.status(500).json({ error: "Failed to skip to previous track" });
+            console.error('Error fetching track details:', err);
+            res.status(500).json({ error: `Error: ${err.message}` });
         });
+    // Log the track ID for debugging
+
+
 });
 
 app.listen(port, () => {

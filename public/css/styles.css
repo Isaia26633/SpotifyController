@@ -9,17 +9,51 @@ body {
     align-items: center;
     height: 100vh;
     flex-direction: column;
+    overflow: hidden;
 }
 
+/* Notification popup */
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    font-size: 14px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    min-width: 200px;
+    text-align: center;
+}
+
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
+}
+
+.close-btn:hover {
+    color: red;
+}
+
+/* Search bar styling */
 .searchbar {
-    width: 100%;
+    width: auto;
     max-width: 600px;
     margin: 20px auto;
     padding: 10px;
-    border: 1px solid #fff;
     border-radius: 5px;
     background-color: #242424;
     color: #fff;
+    transform: translateY(75%);
 }
 
 .searchbar input[type="text"] {
@@ -46,19 +80,19 @@ body {
     align-items: center;
 }
 
+/* Search results container */
 #searchResults {
-    width: 100%;
+    width: auto;
     max-width: 600px;
     margin: 20px auto;
     padding: 10px;
-    border: 1px solid #fff;
-    border-radius: 5px;
     background-color: #242424;
     color: #fff;
     text-align: center;
     display: block;
 }
 
+/* Search button style */
 .searchButton {
     background-color: #1DB954;
     color: #fff;
@@ -74,6 +108,7 @@ body {
     background-color: #1ed760;
 }
 
+/* Playback button style */
 .playback {
     gap: 10px;
     margin-top: 20px;
@@ -90,7 +125,57 @@ body {
     transition: background-color 0.3s ease;
 }
 
-
 .playback:hover {
     background-color: #1ed760;
+}
+
+/* Search container position */
+#searchContainer {
+    width: 15%;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    background-color: #242424;
+    padding: 10px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 100%;
+}
+
+#searchContainer text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Playback container styling */
+#playbackcontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border: 2px solid #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Current song text */
+#currentSong {
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Playback controls container */
+#playbackControls {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+#searchContents h3 {
+    margin-top: 20px;
+   text-align: center;
 }

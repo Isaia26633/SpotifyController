@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Controller</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" href="/ico/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div id="notification" class="notification">
+        <span class="close-btn" onclick="closeNotification()">&times;</span>
+        <p id="notification-text">This is a temporary popup!</p>
+    </div>
+
+    <div id="searchContainer">
+        <div id="search content">
+            <br>
+            <h3>Search for a song</h3>
+            <form onsubmit="search(event); return false;">
+                <div class="searchbar">
+                    <input type="text" id="searchBar" placeholder="Search for a song">
+                    <button type="submit" class="searchButton">Search</button>
+                </div>
+            </form>
+            <div id="searchResults"></div>
+        </div>
+    </div>
+    <div id="playbackContainer">
+        <div id="currentSong"></div>
+        <br>
+        <div id="playbackControls">
+            <button onclick="previousSong()" class="playback">⏮</button>
+            <button onclick="playSong()" class="playback">▶</button>
+            <button onclick="skipSong()" class="playback">⏭</button>
+        </div>
+
+    </div>
+</body>
+<script src="js/main.js"></script>
+</html>
