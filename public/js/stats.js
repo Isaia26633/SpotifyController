@@ -1,12 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('submitButton').addEventListener('click', fetchStats);
+    document.getElementById('submitButton').addEventListener('click', () => {
+        fetchStats();
+        moveFilters();
+        showHeaders();
+    });
 });
 
 function fetchStats() {
     const timeRange = document.getElementById('timeRange').value;
 
     fetch(`/topTracks?time_range=${timeRange}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             const topTracksDiv = document.getElementById('topTracks');
             topTracksDiv.innerHTML = data.map(track => `
@@ -22,7 +31,12 @@ function fetchStats() {
         });
 
     fetch(`/topArtists?time_range=${timeRange}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             const topArtistsDiv = document.getElementById('topArtists');
             topArtistsDiv.innerHTML = data.map(artist => `
@@ -35,4 +49,17 @@ function fetchStats() {
         .catch(err => {
             console.error('Error fetching top artists:', err);
         });
+}
+
+function moveFilters() {
+    const filters = document.querySelector('.filters');
+    filters.style.top = '10%';
+    filters.style.transform = 'translate(-50%, 0)';
+}
+
+function showHeaders() {
+    const headers = document.querySelectorAll('.stats h2');
+    headers.forEach(header => {
+        header.classList.remove('hidden');
+    });
 }

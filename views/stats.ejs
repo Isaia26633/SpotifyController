@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,37 +8,34 @@
     <link rel="stylesheet" href="/css/stylesStats.css">
     <link rel="icon" href="/ico/favicon.ico" type="image/x-icon">
 </head>
+
 <body>
+    <button id="back" onclick="history.back()">🢀</button>
     <div class="stats-container">
         <div class="stats-header">
             <h1>Spotify Stats</h1>
         </div>
         <div class="filters">
-            <label for="filterType">Filter by:</label>
-            <select id="filterType">
-                <option value="artist">Artist</option>
-                <option value="track">Track</option>
-            </select>
-
             <label for="timeRange">Time Range:</label>
             <select id="timeRange">
                 <option value="long_term">1 Year</option>
                 <option value="medium_term">6 Months</option>
                 <option value="short_term">4 Weeks</option>
             </select>
-            <button id="submitButton" onclick="fetchStats()">Submit</button>
+            <button id="submitButton" onclick="fetchStats()">Get your stats</button>
         </div>
         <div class="stats">
             <div class="stat-card">
-                <h2>Top Tracks</h2>
+                <h2 class="hidden">Top Tracks</h2>
                 <div id="topTracks" class="stats-list"></div>
             </div>
             <div class="stat-card">
-                <h2>Top Artists</h2>
+                <h2 class="hidden">Top Artists</h2>
                 <div id="topArtists" class="stats-list"></div>
             </div>
         </div>
     </div>
     <script src="/js/stats.js"></script>
 </body>
+
 </html>
