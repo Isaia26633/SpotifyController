@@ -234,65 +234,88 @@ a {
     margin-top: 20px;
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background-color: #121212;
-    color: #FFFFFF;
-    min-height: 100vh;
+
+@media (max-width: 1000px) {
+    body {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .searchbar {
+        width: 90%;
+        margin: 10px auto;
+        transform: translateY(0);
+    }
+
+    #searchResults {
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    #searchContainer {
+        width: 90%;
+        height: auto;
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: translateY(0);
+        margin-bottom: 20px;
+    }
+
+    #playbackcontainer {
+        width: 90%;
+        border: none;
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: translate(0, 0);
+        margin-bottom: 20px;
+    }
+
+    #playbackControls {
+        gap: 10px;
+    }
+
+    #progressContainer {
+        width: 90%;
+    }
+
+    #stats {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 
-h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
-    text-align: center;
-}
+@media (max-width: 900px) {
+    body {
+        padding: 5px;
+    }
 
-.filters {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-}
+    .searchbar {
+        width: 100%;
+        margin: 5px auto;
+    }
 
-.filters label {
-    font-size: 16px;
-    margin-right: 10px;
-}
+    #searchResults {
+        width: 100%;
+        margin: 5px auto;
+    }
 
-.filters select {
-    padding: 5px;
-    font-size: 16px;
-    background-color: #242424;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 5px;
-}
+    #searchContainer {
+        width: 100%;
+        margin-bottom: 10px;
+    }
 
-.stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-}
+    #playbackcontainer {
+        width: 100%;
+        margin-bottom: 10px;
+    }
 
-.stat-item {
-    background-color: #242424;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    width: 200px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
+    #progressContainer {
+        width: 100%;
+    }
 
-.stat-item h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.stat-item p {
-    font-size: 16px;
-    margin: 0;
+    #stats {
+        gap: 5px;
+    }
 }
