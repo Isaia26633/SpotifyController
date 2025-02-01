@@ -22,7 +22,8 @@ app.get('/login', (req, res) => {
         'user-read-playback-state',
         'user-modify-playback-state',
         'user-library-modify',
-        'user-library-read'
+        'user-library-read',
+        'user-top-read'
     ];
     res.redirect(spotifyApi.createAuthorizeURL(scopes));
 });
@@ -89,7 +90,7 @@ app.get('/search', (req, res) => {
                 };
                 res.json(trackInfo);
             } else {
-                res.status(404).send('No tracks found');
+                res.status(404).json({ error: 'No tracks found' });
             }
         })
         .catch(err => {
@@ -113,7 +114,7 @@ app.get('/currentSong', (req, res) => {
                 };
                 res.json(trackInfo);
             } else {
-                res.status(404).send('No tracks found');
+                res.status(404).json({ error: 'No tracks found' });
             }
         })
         .catch(err => {
@@ -122,12 +123,74 @@ app.get('/currentSong', (req, res) => {
         });
 });
 
+app.get('/topTracks', (req, res) => {
+    const timeRange = req.query.time_range || 'long_term'; // 'long_term' is for the past year
+
+    spotifyApi.getMyTopTracks({ time_range: timeRange, limit: 10 })
+        .then(data => {
+            res.json(data.body.items);
+        })
+        .catch(err => {
+            console.error('Error fetching top tracks:', err);
+            res.status(500).json({ error: `Error: ${err.message}` });
+        });
+});
+
+app.get('/topArtists', (req, res) => {
+    const timeRange = req.query.time_range || 'long_term'; // 'long_term' is for the past year
+
+    spotifyApi.getMyTopArtists({ time_range: timeRange, limit: 10 })
+        .then(data => {
+            res.json(data.body.items);
+        })
+        .catch(err => {
+            console.error('Error fetching top artists:', err);
+            res.status(500).json({ error: `Error: ${err.message}` });
+        });
+});
+
+
+
 app.get('/', (req, res) => {
     res.render('index');
 });
 
 app.get('/searchPage', (req, res) => {
     res.render('homePage');
+});
+
+app.get('/stats', (req, res) => {
+    res.render('stats');
+});
+
+app.get('/playbackState', (req, res) => {
+    if (!spotifyApi.getAccessToken()) {
+        return res.status(401).send('Unauthorized: Access token missing or invalid');
+    }
+
+    spotifyApi.getMyCurrentPlaybackState()
+        .then(data => {
+            if (data.body && data.body.is_playing !== undefined) {
+                const playbackState = {
+                    isPlaying: data.body.is_playing,
+                    progress_ms: data.body.progress_ms,
+                    track: data.body.item ? {
+                        name: data.body.item.name,
+                        artist: data.body.item.artists[0].name,
+                        uri: data.body.item.uri,
+                        cover: data.body.item.album.images[0].url,
+                        duration_ms: data.body.item.duration_ms
+                    } : null
+                };
+                res.json(playbackState);
+            } else {
+                res.status(404).json({ error: 'No playback state found' });
+            }
+        })
+        .catch(err => {
+            console.error('Error getting playback state:', err);
+            res.status(500).send(`Error: ${err.message}`);
+        });
 });
 
 //plays the song when the play button is pressed
@@ -139,13 +202,38 @@ app.post('/play', (req, res) => {
         return res.status(400).json({ error: "Missing track URI" });
     }
 
-    spotifyApi.play({ uris: [uri] })
-        .then(() => {
-            res.json({ success: true, message: "Playing track!" });
+    // Extract the track ID from the URI
+    const trackIdPattern = /^spotify:track:([a-zA-Z0-9]{22})$/;
+    const match = uri.match(trackIdPattern);
+    if (!match) {
+        return res.status(400).json({ error: 'Invalid track URI format' });
+    }
+    const trackId = match[1];
+
+    // Get track details to include the track info in the response
+    spotifyApi.getTrack(trackId)
+        .then(trackData => {
+            const track = trackData.body;
+            const trackInfo = {
+                name: track.name,
+                artist: track.artists[0].name,
+                uri: track.uri,
+                cover: track.album.images[0].url,
+            };
+
+            // Play the track
+            spotifyApi.play({ uris: [uri] })
+                .then(() => {
+                    res.json({ success: true, message: "Playing track!", trackInfo });
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    res.status(500).json({ error: "Playback failed, make sure Spotify is open" });
+                });
         })
         .catch(err => {
-            console.error('Error:', err);
-            res.status(500).json({ error: "Playback failed, make sure Spotify is open" });
+            console.error('Error fetching track details:', err);
+            res.status(500).json({ error: `Error: ${err.message}` });
         });
 });
 
@@ -246,10 +334,68 @@ app.post('/addToLiked', (req, res) => {
             console.error('Error fetching track details:', err);
             res.status(500).json({ error: `Error: ${err.message}` });
         });
-    // Log the track ID for debugging
-
-
 });
+
+//pause track
+app.post('/pause', (req, res) => {
+    spotifyApi.pause()
+        .then(() => {
+            res.json({ success: true, message: "Paused playback" });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: "Failed to pause playback" });
+        });
+});
+
+app.post('/resume', (req, res) => {
+    spotifyApi.play()
+        .then(() => {
+            res.json({ success: true, message: "Resumed playback" });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: "Failed to resume playback" });
+        });
+});
+
+app.post('/shuffle', (req, res) => {
+    const { state } = req.body;
+
+    if (typeof state !== 'boolean') {
+        return res.status(400).json({ error: 'Shuffle state must be a boolean' });
+    }
+
+    spotifyApi.setShuffle(state)
+        .then(() => {
+            res.json({ success: true, message: `Shuffle ${state ? 'enabled' : 'disabled'}` });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            res.status(500).json({ error: `Failed to ${state ? 'enable' : 'disable'} shuffle` });
+        });
+});
+
+
+
+
+app.put('/seek', (req, res) => {
+    const { position_ms } = req.body;
+
+    if (typeof position_ms !== 'number' || isNaN(position_ms)) {
+        return res.status(400).json({ error: 'Position in milliseconds must be a valid number' });
+    }
+
+    spotifyApi.seek(position_ms)
+        .then(() => {
+            res.json({ success: true, message: 'Playback position updated' });
+        })
+        .catch(err => {
+            console.error('Error seeking playback:', err);
+            res.status(500).json({ error: `Error: ${err.message}` });
+        });
+});
+
 
 app.listen(port, () => {
     console.log(`Listening on port http://localhost:${port}`);

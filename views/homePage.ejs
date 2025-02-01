@@ -12,13 +12,10 @@
 <body>
     <div id="notification" class="notification">
         <span class="close-btn" onclick="closeNotification()">&times;</span>
-        <p id="notification-text">This is a temporary popup!</p>
+        <p id="notification-text"></p>
     </div>
-
     <div id="searchContainer">
         <div id="search content">
-            <br>
-            <h3>Search for a song</h3>
             <form onsubmit="search(event); return false;">
                 <div class="searchbar">
                     <input type="text" id="searchBar" placeholder="Search for a song">
@@ -32,12 +29,26 @@
         <div id="currentSong"></div>
         <br>
         <div id="playbackControls">
+            <button onclick="shuffle()" class="playback">⇄</button>
             <button onclick="previousSong()" class="playback">⏮</button>
-            <button onclick="playSong()" class="playback">▶</button>
+            <button class="playback" id="playPauseButton" onclick="togglePlayPause()">Loading...</button>
             <button onclick="skipSong()" class="playback">⏭</button>
         </div>
-
+        <br>
+        <div id="progressContainer" onclick="seek(event)">
+            <div id="progressBar"></div>
+            <br>
+            <div id="playbackTime">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+        <br>
+        <div id="stats">
+            <a href="/stats">See your stats</a>
+        </div>
     </div>
 </body>
 <script src="js/main.js"></script>
+
 </html>
