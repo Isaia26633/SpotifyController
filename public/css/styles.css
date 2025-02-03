@@ -234,6 +234,55 @@ a {
     margin-top: 20px;
 }
 
+@media (max-width: 1366px){
+    body {
+        padding: 20px;
+    }
+
+    .searchbar {
+        width: 80%;
+        margin: 10px auto;
+    }
+
+    #searchResults {
+        width: 80%;
+        margin: 10px auto;
+    }
+
+    #searchContainer {
+        width: auto;
+        height: auto;
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: translateY(0);
+        margin-bottom: 20px;
+    }
+
+    #playbackcontainer {
+        width: 80%;
+        border: none;
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: translate(0, 0);
+        margin-bottom: 20px;
+    }
+
+    #playbackControls {
+        gap: 15px;
+    }
+
+    #progressContainer {
+        width: 80%;
+    }
+
+    #stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
 
 @media (max-width: 1000px) {
     body {
