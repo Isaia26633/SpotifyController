@@ -250,7 +250,7 @@ a {
     }
 
     #searchContainer {
-        width: auto;
+        width: 80%;
         height: auto;
         position: relative;
         top: 0;
