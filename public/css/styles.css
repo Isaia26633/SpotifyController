@@ -249,16 +249,6 @@ a {
         margin: 10px auto;
     }
 
-    #searchContainer {
-        width: 80%;
-        height: auto;
-        position: relative;
-        top: 0;
-        left: 0;
-        transform: translateY(0);
-        margin-bottom: 20px;
-    }
-
     #playbackcontainer {
         width: 80%;
         border: none;
