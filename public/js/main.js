@@ -31,6 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 const playPauseButton = document.getElementById('playPauseButton');
+                
+                if (!data.track) {
+                    playPauseButton.innerText = '▶'; // Play icon
+                    document.getElementById('currentTime').innerText = '0:00';
+                    document.getElementById('totalTime').innerText = '0:00';
+                    document.getElementById('progressBar').style.width = '0%';
+                    return;
+                }
+
                 if (data.isPlaying) {
                     playPauseButton.innerText = '⏸'; // Pause icon
                     playPauseButton.onclick = pausePlayback;
@@ -38,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     playPauseButton.innerText = '▶'; // Play icon
                     playPauseButton.onclick = resumePlayback;
                 }
+                
                 updateProgressBar(data);
             })
             .catch(err => {
@@ -50,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchCurrentSong();
     setInterval(fetchCurrentSong, 500);
     playbackState();
-    setInterval(playbackState, 500);
+    setInterval(playbackState, 1000); // Update every second
 });
 
 let notificationTimeout;
